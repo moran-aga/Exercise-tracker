@@ -3,7 +3,7 @@ const app = express();
 const cors = require("cors");
 require("dotenv").config();
 const mongoose = require("mongoose");
-app.use(express.json());
+app.use(express.urlencoded());
 app.use(cors());
 app.use(express.static("public"));
 
@@ -34,7 +34,8 @@ app.get("/", (req, res) => {
 });
 
 app.post("/api/exercise/new-user", (req, res) => {
- const { body } = req;
+ const body = req.body;
+ console.log(body);
  const newUser = new User({ username: body.username });
  newUser.save();
  res.send(newUser);
