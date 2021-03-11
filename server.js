@@ -38,9 +38,24 @@ app.post("/api/exercise/new-user", (req, res) => {
  console.log(body);
  const newUser = new User({ username: body.username });
  newUser.save();
+ api / exercise / users;
  res.send(newUser);
 });
 
+app.get("/api/exercise/users", (req, res) => {
+ User.find({})
+  .then((users) => res.send(users))
+  .catch((err) => console.log(err));
+});
+
+app.post("/api/exercise/add", (req, res) => {
+ const body = req.body;
+ console.log(body);
+ const newUser = new User({ username: body.username });
+ newUser.save();
+ api / exercise / users;
+ res.send(newUser);
+});
 const listener = app.listen(process.env.PORT || 3000, () => {
  console.log("Your app is listening on port " + listener.address().port);
 });
