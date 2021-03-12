@@ -89,23 +89,34 @@ app.post("/api/exercise/add", (req, res) => {
   });
 });
 
-app.get("/api/exercise/log?:userId?:from", (req, res) => {
- //  const from = new Date(req.query.from);
- //  const to = req.query.to;
- //  const limit = req.query.limit;
+app.get("/api/exercise/log?:userId?:from?:to?:limit", (req, res) => {
  const id = req.query.userId;
+ let from = new Date(req.query.from);
+ let to = new Date(req.query.to);
+ let limit = Number(req.query.limit);
  console.log(req.query);
+
+ if (from.toString() === "Invalid Date") {
+  from = new Date(-8640000000000000);
+ }
+ if (to.toString() === "Invalid Date") {
+  to = new Date();
+ }
+ console.log(id, from, to, limit);
  User.findById(id)
   .then((user) => {
-   Exercise.find({ userId: id })
+   Exercise.find({ userId: id, date: { $gte: from, $lte: to } })
     .then((array) => {
+     console.log(array.length);
+     if (isNaN(limit)) limit = array.length;
+     console.log(limit);
+     array = array.slice(0, limit);
      let data = {
       username: user.username,
       _id: user.id,
       log: array,
       count: array.length,
      };
-     console.log(data);
      res.json(data);
     })
     .catch((err) => {
