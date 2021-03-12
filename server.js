@@ -67,7 +67,7 @@ app.post("/api/exercise/add", (req, res) => {
   }`;
  }
  const newExercise = new Exercise({
-  id: body.userId,
+  userId: body.userId,
   description: body.description,
   duration: body.duration,
   date: finalDate,
@@ -89,10 +89,37 @@ app.post("/api/exercise/add", (req, res) => {
   });
 });
 
-// app.get("/api/exercise/log?{userId}[&from][&to][&limit]", (req, res) => {
-//  const id = req.query.userId;
-//  console.log(req.query);
-// });
+app.get("/api/exercise/log?:userId?:from", (req, res) => {
+ //  const from = new Date(req.query.from);
+ //  const to = req.query.to;
+ //  const limit = req.query.limit;
+ const id = req.query.userId;
+ console.log(req.query);
+ User.findById(id)
+  .then((user) => {
+   Exercise.find({ userId: id })
+    .then((array) => {
+     let data = {
+      username: user.username,
+      _id: user.id,
+      log: array,
+      count: array.length,
+     };
+     console.log(data);
+     res.json(data);
+    })
+    .catch((err) => {
+     return console.log(err);
+    });
+  })
+  .catch((err) => {
+   return res.send(err);
+  });
+});
+
+//localhost:3000/api/exercise/log?userId=604b51dbd88c806f98a801f9
+
+//Request URL: https://localhost:3000/api/exercise/log?userId=604b476109784d02082c7f54&from=1989-12-31&to=1990-01-03
 
 function dateFormat(dateString) {
  let date = new Date(dateString);
