@@ -80,8 +80,13 @@ app.post("/api/exercise/add", (req, res) => {
     description: newExercise.description,
     duration: newExercise.duration,
     _id: user.id,
-    date: dateFormat(finalDate),
    };
+   if (finalDate === undefined) {
+    data.date = fixDate(newExercise.date);
+   } else {
+    let date = new Date(finalDate);
+    data.date = date.toDateString();
+   }
    res.json(data);
   })
   .catch((err) => {
@@ -94,7 +99,6 @@ app.get("/api/exercise/log?:userId?:from?:to?:limit", (req, res) => {
  let from = new Date(req.query.from);
  let to = new Date(req.query.to);
  let limit = Number(req.query.limit);
- console.log(req.query);
 
  if (from.toString() === "Invalid Date") {
   from = new Date(-8640000000000000);
@@ -102,14 +106,11 @@ app.get("/api/exercise/log?:userId?:from?:to?:limit", (req, res) => {
  if (to.toString() === "Invalid Date") {
   to = new Date();
  }
- console.log(id, from, to, limit);
  User.findById(id)
   .then((user) => {
    Exercise.find({ userId: id, date: { $gte: from, $lte: to } })
     .then((array) => {
-     console.log(array.length);
      if (isNaN(limit)) limit = array.length;
-     console.log(limit);
      array = array.slice(0, limit);
      let data = {
       username: user.username,
@@ -128,19 +129,10 @@ app.get("/api/exercise/log?:userId?:from?:to?:limit", (req, res) => {
   });
 });
 
-//localhost:3000/api/exercise/log?userId=604b51dbd88c806f98a801f9
-
-//Request URL: https://localhost:3000/api/exercise/log?userId=604b476109784d02082c7f54&from=1989-12-31&to=1990-01-03
-
-function dateFormat(dateString) {
- let date = new Date(dateString);
- let year = date.getFullYear();
- let day = date.getDate();
- let month = new Intl.DateTimeFormat("en-US", { month: "short" }).format(date);
- let weekday = new Intl.DateTimeFormat("en-US", {
-  weekday: "short",
- }).format(date);
- return `${weekday} ${month} ${day} ${year}`;
+function fixDate(date) {
+ let dateString = String(date);
+ dateString = dateString.slice(0, 15);
+ return dateString;
 }
 
 const listener = app.listen(process.env.PORT || 3000, () => {
